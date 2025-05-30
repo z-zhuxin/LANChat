@@ -1,0 +1,84 @@
+<Application x:Class="LANChat.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:LANChat.UI">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <!-- 应用程序样式 -->
+                <ResourceDictionary>
+                    <!-- 颜色 -->
+                    <SolidColorBrush x:Key="PrimaryColor" Color="#2196F3"/>
+                    <SolidColorBrush x:Key="PrimaryLightColor" Color="#BBDEFB"/>
+                    <SolidColorBrush x:Key="PrimaryDarkColor" Color="#1976D2"/>
+                    <SolidColorBrush x:Key="AccentColor" Color="#FF4081"/>
+                    <SolidColorBrush x:Key="TextPrimaryColor" Color="#212121"/>
+                    <SolidColorBrush x:Key="TextSecondaryColor" Color="#757575"/>
+                    <SolidColorBrush x:Key="DividerColor" Color="#BDBDBD"/>
+                    <SolidColorBrush x:Key="BackgroundColor" Color="#F5F5F5"/>
+                    <SolidColorBrush x:Key="CardBackgroundColor" Color="#FFFFFF"/>
+                    
+                    <!-- 按钮样式 -->
+                    <Style x:Key="PrimaryButton" TargetType="Button">
+                        <Setter Property="Background" Value="{StaticResource PrimaryColor}"/>
+                        <Setter Property="Foreground" Value="White"/>
+                        <Setter Property="Padding" Value="15,8"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="Button">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" 
+                                            CornerRadius="4">
+                                        <ContentPresenter HorizontalAlignment="Center" 
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryDarkColor}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="{StaticResource PrimaryDarkColor}"/>
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.5"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                    
+                    <!-- 文本框样式 -->
+                    <Style x:Key="ModernTextBox" TargetType="TextBox">
+                        <Setter Property="Padding" Value="10,8"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Setter Property="BorderBrush" Value="{StaticResource DividerColor}"/>
+                        <Setter Property="Background" Value="White"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="TextBox">
+                                    <Border Background="{TemplateBinding Background}" 
+                                            BorderBrush="{TemplateBinding BorderBrush}" 
+                                            BorderThickness="{TemplateBinding BorderThickness}" 
+                                            CornerRadius="4">
+                                        <ScrollViewer x:Name="PART_ContentHost" 
+                                                      Margin="{TemplateBinding Padding}" 
+                                                      VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter Property="BorderBrush" Value="{StaticResource PrimaryColor}"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ResourceDictionary>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

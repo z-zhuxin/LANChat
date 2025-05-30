@@ -1,4 +1,4 @@
-name: Build and Test
+name: Build, Test and Deploy
 
 on:
   push:
@@ -9,6 +9,7 @@ on:
 env:
   DOTNET_VERSION: '6.0.x'
   DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  BUILD_CONFIGURATION: 'Release'
 
 jobs:
   build-and-test:
@@ -16,7 +17,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest]
+        os: [windows-latest, ubuntu-latest]
       fail-fast: false
 
     steps:
@@ -28,27 +29,61 @@ jobs:
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Display .NET info
-      run: dotnet --info
+    - name: Display environment info
+      run: |
+        dotnet --info
+        echo "OS: $RUNNER_OS"
+        echo "Runner: $RUNNER_NAME"
 
     - name: Restore dependencies
       run: dotnet restore --verbosity detailed
+      continue-on-error: false
 
     - name: Build solution
-      run: dotnet build --no-restore --verbosity detailed
+      run: dotnet build --no-restore --configuration ${{ env.BUILD_CONFIGURATION }} --verbosity detailed
+      continue-on-error: false
 
     - name: Run tests
-      run: dotnet test --no-build --verbosity normal --logger "console;verbosity=detailed"
+      run: dotnet test --no-build --configuration ${{ env.BUILD_CONFIGURATION }} --verbosity normal --logger "console;verbosity=detailed" --collect:"XPlat Code Coverage"
+      continue-on-error: false
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results-${{ matrix.os }}
+        path: |
+          **/TestResults/*
+          **/coverage.*
 
     - name: Publish artifacts
       if: github.ref == 'refs/heads/main'
       run: |
-        dotnet publish LANChat.UI/LANChat.UI.csproj -c Release -o publish --verbosity detailed
+        dotnet publish LANChat.UI/LANChat.UI.csproj -c ${{ env.BUILD_CONFIGURATION }} -o publish --verbosity detailed
+        echo "Build artifacts generated at: publish/"
 
-    - name: Upload artifacts
+    - name: Upload build artifacts
       if: github.ref == 'refs/heads/main'
       uses: actions/upload-artifact@v3
       with:
-        name: LANChat
+        name: LANChat-${{ matrix.os }}
         path: publish/**
-        retention-days: 5
+        retention-days: 7
+
+  notify:
+    name: Notify Status
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Send notification
+        uses: actions/github-script@v6
+        if: failure()
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '🚨 Build failed! Please check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})'
+            })
